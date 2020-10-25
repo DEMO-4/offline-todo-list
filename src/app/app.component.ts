@@ -3,6 +3,7 @@ import { Task } from './models/task.model';
 import {Observable} from 'rxjs';
 import {TasksService} from './services/tasks.service';
 import {switchMap, tap} from 'rxjs/operators';
+import {OnlineService} from './services/online.service';
 
 @Component({
   selector: 'app-root',
@@ -11,10 +12,10 @@ import {switchMap, tap} from 'rxjs/operators';
 })
 export class AppComponent  implements OnInit {
   newTask: Task = { name: null, isComplete: false };
-
+  isOnline$ = this.onlineService.isOnline$;
   allTasks$: Observable<Task[]>;
 
-  constructor(public tasksService: TasksService) {}
+  constructor(public tasksService: TasksService, private onlineService: OnlineService) {}
 
   ngOnInit(): void {
     this.allTasks$ = this.getTasks$();

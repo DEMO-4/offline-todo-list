@@ -9,6 +9,22 @@ import {RouterModule} from '@angular/router';
 import {MatCheckboxModule, MatButtonModule, MatInputModule} from '@angular/material';
 import {HttpClientModule} from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {DBConfig, NgxIndexedDBModule} from 'ngx-indexed-db';
+
+
+const dbConfig: DBConfig  = {
+  name: 'MyDb',
+  version: 1,
+  objectStoresMeta: [{
+    store: 'tasks',
+    storeConfig: { keyPath: 'id', autoIncrement: true },
+    storeSchema: [
+      { name: 'name', keypath: 'name', options: { unique: false } },
+      { name: 'isComplete', keypath: 'isComplete', options: { unique: false } },
+      { name: 'isOnServer', keypath: 'isOnServer', options: {unique: false}}
+    ]
+  }]
+};
 
 @NgModule({
   declarations: [
@@ -23,6 +39,9 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
     MatCheckboxModule,
     MatButtonModule,
     MatInputModule,
+
+
+    NgxIndexedDBModule.forRoot(dbConfig),
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
   providers: [],

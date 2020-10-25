@@ -6,7 +6,8 @@
     <mat-checkbox
       [id]="task.id"
       [checked]="task.isComplete"
-      (change)="toggleTask(task)">
+      (change)="toggleTask(task)"
+      [disabled]="!(isOnline$ | async)">
     </mat-checkbox>
 
     <label [attr.for]="task.id">{{task.name}}</label>
@@ -15,6 +16,7 @@
     <button mat-raised-button
             class="delete"
             (click)="deleteTask(task.id)"
+            [disabled]="!(isOnline$ | async)"
             color="warn"
     >DELETE</button>
   </div>

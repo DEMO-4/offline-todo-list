@@ -1,5 +1,12 @@
 export interface Task {
+  id?: number;
   name: string;
   isComplete: boolean;
-  id?: number;
+}
+
+export interface TaskDB {
+  id: number;
+  name: string;
+  isComplete: boolean;
+  isOnServer: boolean;
 }
