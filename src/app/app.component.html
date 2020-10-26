@@ -22,7 +22,7 @@
   </div>
 
 
-  <form class="row form" (ngSubmit)="createTask()">
+  <form class="row form" (ngSubmit)="createTask($event)">
     <mat-form-field class="example-full-width">
       <input name="Task Name"
              matInput

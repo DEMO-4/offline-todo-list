@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import { Task } from './models/task.model';
 import {Observable} from 'rxjs';
 import {TasksService} from './services/tasks.service';
-import {switchMap, tap} from 'rxjs/operators';
+import {switchMap, take, tap} from 'rxjs/operators';
 import {OnlineService} from './services/online.service';
 
 @Component({
@@ -25,24 +25,22 @@ export class AppComponent  implements OnInit {
     return this.tasksService.getTasks();
   }
 
-  createTask(): void {
-    this.allTasks$ = this.tasksService.createTask(this.newTask).pipe(
-      tap(() => this.newTask.name = null),
-      switchMap(() => this.getTasks$()),
-    );
+  createTask(event): void {
+    event.preventDefault();
+    this.tasksService.createTask(this.newTask).pipe(
+      take(1)
+    ).subscribe(() => {
+      this.newTask.name = null;
+    });
   }
 
   toggleTask(task: Task): void {
     const updatedTask: Task = {...task, isComplete: !task.isComplete};
-    this.allTasks$ = this.tasksService.toggleTask(updatedTask).pipe(
-      switchMap(() => this.getTasks$()),
-    );
+    this.tasksService.toggleTask(updatedTask).pipe(take(3)).subscribe();
   }
 
   deleteTask(id: number): void {
-    this.allTasks$ = this.tasksService.deleteTask(id).pipe(
-      switchMap(() => this.getTasks$()),
-    );
+    this.tasksService.deleteTask(id).pipe(take(3)).subscribe();
   }
 
   onFormChange($event: { target: { value: string }}): void {

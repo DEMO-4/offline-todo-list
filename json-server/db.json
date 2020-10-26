@@ -17,9 +17,15 @@
       "id": 2
     },
     {
-      "name": "TEST",
-      "isComplete": true,
+      "name": "test",
+      "isComplete": false,
       "id": 3
+    },
+    {
+      "name": "test",
+      "isComplete": false,
+      "isOnServer": false,
+      "id": 5
     }
   ]
 }
