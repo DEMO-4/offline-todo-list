@@ -25,7 +25,6 @@ export class TasksService {
               @Inject(PLATFORM_ID) private platformId
   ) {
     this.syncListener();
-    this.swSync();
   }
 
   syncListener(): void {
@@ -42,9 +41,7 @@ export class TasksService {
         });
         // checks are all necessary - not on server, supports service workers + supports sync manager
       } else if (isPlatformBrowser(this.platformId) && navigator.serviceWorker && window && window.SyncManager) {
-        navigator.serviceWorker.ready.then((swRegistration) => {
-          return swRegistration.sync.register('sync-tasks');
-        });
+        this.swSync();
       }
     });
   }
