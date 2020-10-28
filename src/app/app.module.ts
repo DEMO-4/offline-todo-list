@@ -42,7 +42,7 @@ const dbConfig: DBConfig  = {
 
 
     NgxIndexedDBModule.forRoot(dbConfig),
-    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
+    ServiceWorkerModule.register('custom-sw.js', { enabled: environment.production })
   ],
   providers: [],
   bootstrap: [AppComponent]

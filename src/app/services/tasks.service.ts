@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Inject, Injectable, PLATFORM_ID} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 
 import {concat, forkJoin, Observable, of, Subject} from 'rxjs';
@@ -6,8 +6,9 @@ import {concat, forkJoin, Observable, of, Subject} from 'rxjs';
 import {Task, TaskDB} from '../models/task.model';
 import {environment} from '../../environments/environment';
 import {NgxIndexedDBService} from 'ngx-indexed-db';
-import {concatMap, map, switchMap, tap} from 'rxjs/operators';
+import {map, switchMap, tap} from 'rxjs/operators';
 import {OnlineService} from './online.service';
+import {isPlatformBrowser} from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -20,8 +21,11 @@ export class TasksService {
 
   constructor(public http: HttpClient,
               private onlineService: OnlineService,
-              private dbService: NgxIndexedDBService<TaskDB>) {
+              private dbService: NgxIndexedDBService<TaskDB>,
+              @Inject(PLATFORM_ID) private platformId
+  ) {
     this.syncListener();
+    this.swSync();
   }
 
   syncListener(): void {
@@ -36,7 +40,19 @@ export class TasksService {
           this.fetchTasks()
         ).subscribe(() => {
         });
+        // checks are all necessary - not on server, supports service workers + supports sync manager
+      } else if (isPlatformBrowser(this.platformId) && navigator.serviceWorker && window && window.SyncManager) {
+        navigator.serviceWorker.ready.then((swRegistration) => {
+          return swRegistration.sync.register('sync-tasks');
+        });
       }
+    });
+  }
+
+  swSync(): void {
+    navigator.serviceWorker.ready.then((swRegistration) => {
+      console.log('adding sw-sync!');
+      return swRegistration.sync.register('sync-tasks');
     });
   }
 
@@ -60,24 +76,28 @@ export class TasksService {
   }
 
   fetchTasks(): Observable<TaskDB[]> {
-    return this.http.get<Task[]>(this.apiPath).pipe(
-      switchMap((tasks) => {
-        const indexDBOperations = tasks.map((task) => this.dbService.add('tasks', {
-            id: task.id,
-            name: task.name,
-            isComplete: task.isComplete,
-            isOnServer: true
-          }));
+    return of([]);
 
-        return forkJoin(indexDBOperations);
-        }
-      ),
-      switchMap(() => this.dbService.getAll('tasks')),
-      tap((tasks) => {
-        debugger;
-        this.tasks$.next(tasks);
-      })
-    );
+    // Disabled to show that requests are going out from our service worker
+
+    // return this.http.get<Task[]>(this.apiPath).pipe(
+    //   switchMap((tasks) => {
+    //       const indexDBOperations = tasks.map((task) => this.dbService.add('tasks', {
+    //         id: task.id,
+    //         name: task.name,
+    //         isComplete: task.isComplete,
+    //         isOnServer: true
+    //       }));
+    //
+    //       return forkJoin(indexDBOperations);
+    //     }
+    //   ),
+    //   switchMap(() => this.dbService.getAll('tasks')),
+    //   tap((tasks) => {
+    //     debugger;
+    //     this.tasks$.next(tasks);
+    //   })
+    // );
   }
 
   // use store when offline, and use API when online
