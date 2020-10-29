@@ -5,12 +5,15 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:prod": "ng build --prod --base-href /app/",
+    "host:prod": "http-server -p 8080 -c-1 dist/serviceworker-demo",
+    "host:proxy": "node src/reverse-proxy.js",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "start:server": "json-server --watch json-server/db.json",
     "start:app-with-server": "concurrently \"npm run start:server\" \"npm run start\"",
-    "start:service-worker": "concurrently \"ng build --prod && http-server -p 8080 -c-1 dist/serviceworker-demo\" \"npm run start:server\""
+    "start:service-worker": "concurrently \"npm run build:prod && npm run host:prod\" \"npm run start:server\" \"node src/reverse-proxy.js\" "
   },
   "private": true,
   "dependencies": {
@@ -26,6 +29,8 @@
     "@angular/router": "~10.1.6",
     "@angular/service-worker": "~10.1.6",
     "@schematics/angular": "^10.2.0",
+    "express": "^4.17.1",
+    "http-proxy-middleware": "^1.0.6",
     "ngx-indexed-db": "^6.1.0",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
